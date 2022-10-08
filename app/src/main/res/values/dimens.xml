@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="indent">16dp</dimen>
+    <dimen name="indent_count">8dp</dimen>
+    <dimen name="avatar_size">48dp</dimen>
+</resources>
