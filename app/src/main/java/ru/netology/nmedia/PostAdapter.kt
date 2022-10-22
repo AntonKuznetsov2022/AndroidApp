@@ -2,6 +2,8 @@ package ru.netology.nmedia
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.databinding.CardPostBinding
 
@@ -11,12 +13,7 @@ typealias OnShareListener = (post: Post) -> Unit
 class PostAdapter(
     private val likeClickListener: OnLikeListener,
     private val shareClickListener: OnShareListener
-) : RecyclerView.Adapter<PostViewHolder>() {
-    var posts: List<Post> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = (CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -24,11 +21,9 @@ class PostAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = posts[position]
+        val post = getItem(position)
         holder.bind(post)
     }
-
-    override fun getItemCount(): Int = posts.size
 }
 
 class PostViewHolder(
@@ -56,10 +51,21 @@ class PostViewHolder(
         }
     }
 
+
     private fun countText(count: Int) = when (count) {
         in 999 downTo 0 -> count
         in 9999 downTo 1000 -> "${count / 1000}.${count % 1000 / 100}K"
         in 999_999 downTo 10_000 -> "${count / 1000}K"
         else -> "${count / 1_000_000}.${count % 1_000_000 / 100_000}M"
+    }
+}
+
+class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
+    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+        return oldItem == newItem
     }
 }
