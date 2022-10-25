@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             with(binding.content) {
                 requestFocus()
                 setText(post.content)
+                setSelection(post.content.length)
             }
             with(binding.editContent) {
                 text = post.content
@@ -79,7 +80,10 @@ class MainActivity : AppCompatActivity() {
         binding.cancel.setOnClickListener {
             binding.groupEdit.visibility = View.GONE
             with(binding.content) {
+                viewModel.cancel()
+
                 setText("")
+                clearFocus()
                 AndroidUtils.hideKeyboard(this)
             }
         }
