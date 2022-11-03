@@ -41,14 +41,14 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/menu"
+        style="@style/Widget.AppTheme.PostMenuButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/description_post_menu"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:background="@android:color/transparent"
+        android:contentDescription="@string/description_post_menu"
         app:icon="@drawable/ic_baseline_more_vert_24"
-        style="@style/Widget.AppTheme.PostMenuButton" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrierTop"
@@ -73,27 +73,34 @@
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="content" />
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierContent2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="videoPlayer" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
+        style="@style/Widget.AppTheme.LikeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checkable="true"
         android:contentDescription="@string/description_post_like"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrierContent"
+        app:layout_constraintTop_toBottomOf="@id/barrierContent2"
         tools:checked="@sample/posts.json/data/likeByMe"
-        tools:text="@sample/posts.json/data/likes"
-        style="@style/Widget.AppTheme.LikeButton" />
+        tools:text="@sample/posts.json/data/likes" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/share"
+        style="@style/Widget.AppTheme.ShareButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/share"
         app:layout_constraintStart_toEndOf="@id/like"
-        app:layout_constraintTop_toBottomOf="@id/barrierContent"
-        tools:text="@sample/posts.json/data/shares"
-        style="@style/Widget.AppTheme.ShareButton" />
+        app:layout_constraintTop_toBottomOf="@id/barrierContent2"
+        tools:text="@sample/posts.json/data/shares" />
 
     <ImageView
         android:id="@+id/views"
@@ -105,7 +112,7 @@
         android:contentDescription="@string/views"
         android:src="@drawable/ic_views_24"
         app:layout_constraintEnd_toStartOf="@id/viewsCount"
-        app:layout_constraintTop_toTopOf="@id/barrierContent" />
+        app:layout_constraintTop_toTopOf="@id/barrierContent2" />
 
     <TextView
         android:id="@+id/viewsCount"
@@ -113,7 +120,32 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/indent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/barrierContent"
+        app:layout_constraintTop_toTopOf="@id/barrierContent2"
         tools:text="1000" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupVideo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:constraint_referenced_ids="videoPlayer,videoButton" />
+
+
+    <ImageView
+        android:id="@+id/videoPlayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/video"
+        app:layout_constraintTop_toBottomOf="@id/barrierContent" />
+
+    <ImageButton
+        android:id="@+id/videoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/videoPlayer"
+        app:layout_constraintEnd_toEndOf="@+id/videoPlayer"
+        app:layout_constraintStart_toStartOf="@id/videoPlayer"
+        app:layout_constraintTop_toBottomOf="@id/barrierContent"
+        app:srcCompat="@drawable/ic_baseline_play_arrow_24"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

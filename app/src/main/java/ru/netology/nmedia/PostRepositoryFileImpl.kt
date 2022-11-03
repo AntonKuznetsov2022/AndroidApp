@@ -38,7 +38,8 @@ class PostRepositoryFileImpl(
                     id = nextId++,
                     author = "Me",
                     likedByMe = false,
-                    published = "now"
+                    published = "now",
+                    video =  "https://www.youtube.com/watch?v=nLIslqvlyaI"
                 )
             ) + posts
             data.value = posts
