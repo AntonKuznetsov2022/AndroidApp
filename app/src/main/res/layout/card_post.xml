@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/indent"
-    tools:context=".MainActivity">
+    tools:context=".FeedFragment">
 
     <ImageView
         android:id="@+id/avatar"
@@ -39,6 +39,22 @@
         app:layout_constraintTop_toBottomOf="@+id/author"
         tools:text="@sample/posts.json/data/published" />
 
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/indent"
+        android:autoLink="web"
+        app:layout_constraintTop_toBottomOf="@id/barrierTop"
+        tools:text="@sample/posts.json/data/content" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="avatar,published,menu" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/menu"
         style="@style/Widget.AppTheme.PostMenuButton"
@@ -49,22 +65,6 @@
         app:icon="@drawable/ic_baseline_more_vert_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierTop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="avatar,published,menu" />
-
-    <TextView
-        android:id="@+id/content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/indent"
-        android:autoLink="web"
-        app:layout_constraintTop_toBottomOf="@id/barrierTop"
-        tools:text="@sample/posts.json/data/content" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrierContent"
@@ -123,6 +123,7 @@
         app:layout_constraintTop_toTopOf="@id/barrierContent2"
         tools:text="1000" />
 
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/groupVideo"
         android:layout_width="match_parent"
@@ -146,6 +147,6 @@
         app:layout_constraintEnd_toEndOf="@+id/videoPlayer"
         app:layout_constraintStart_toStartOf="@id/videoPlayer"
         app:layout_constraintTop_toBottomOf="@id/barrierContent"
-        app:srcCompat="@drawable/ic_baseline_play_arrow_24"/>
+        app:srcCompat="@drawable/ic_baseline_play_arrow_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

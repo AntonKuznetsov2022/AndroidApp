@@ -15,6 +15,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onPlayVideo(post: Post) {}
+    fun onPost(post: Post) {}
 }
 
 class PostAdapter(
@@ -58,6 +59,10 @@ class PostViewHolder(
                 onInteractionListener.onPlayVideo(post)
             }
 
+            root.setOnClickListener {
+                onInteractionListener.onPost(post)
+            }
+
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
@@ -81,13 +86,13 @@ class PostViewHolder(
             }
         }
     }
+}
 
-    private fun countText(count: Int) = when (count) {
-        in 999 downTo 0 -> count
-        in 9999 downTo 1000 -> "${count / 1000}.${count % 1000 / 100}K"
-        in 999_999 downTo 10_000 -> "${count / 1000}K"
-        else -> "${count / 1_000_000}.${count % 1_000_000 / 100_000}M"
-    }
+fun countText(count: Int) = when (count) {
+    in 999 downTo 0 -> count
+    in 9999 downTo 1000 -> "${count / 1000}.${count % 1000 / 100}K"
+    in 999_999 downTo 10_000 -> "${count / 1000}K"
+    else -> "${count / 1_000_000}.${count % 1_000_000 / 100_000}M"
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
