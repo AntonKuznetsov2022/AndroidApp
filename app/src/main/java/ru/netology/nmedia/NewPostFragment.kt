@@ -1,39 +1,31 @@
 package ru.netology.nmedia
 
+
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 
+
 class NewPostFragment : Fragment() {
 
     lateinit var binding: FragmentNewPostBinding
+    private var APP_NAME = "editText"
 
     companion object {
         var Bundle.textArg: String? by StringArg
+        var Bundle.postIdArg: Long by LongArg
     }
 
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )
-
-    override fun onPause() {
-        Toast.makeText(getActivity(), "Back button pressed", Toast.LENGTH_LONG)
-            .show()
-        super.onPause()
-    }
-
-    override fun onResume() {
-        Toast.makeText(getActivity(), "On Resume", Toast.LENGTH_LONG)
-            .show()
-        super.onResume()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +34,11 @@ class NewPostFragment : Fragment() {
     ): View? {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
 
+        val editText = context?.getSharedPreferences(APP_NAME, MODE_PRIVATE)
+        if (editText != null) {
+                binding.edit.setText(editText.getString(APP_NAME, ""))
+        }
+
         if (arguments?.textArg != null) {
             binding.cancel.visibility = View.VISIBLE
             with(binding.edit) {
@@ -49,8 +46,9 @@ class NewPostFragment : Fragment() {
                 setSelection(text.toString().length)
             }
         }
-
+        super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            saveText(binding.edit.text.toString())
             findNavController().navigateUp()
         }
 
@@ -58,6 +56,7 @@ class NewPostFragment : Fragment() {
             ?.let(binding.edit::setText)
 
         binding.cancel.setOnClickListener {
+            saveText(binding.edit.text.toString())
             viewModel.cancel()
             findNavController().navigateUp()
         }
@@ -66,6 +65,7 @@ class NewPostFragment : Fragment() {
             if (binding.edit.text.isNullOrBlank()) {
                 findNavController().navigateUp()
             } else {
+                saveText("")
                 viewModel.changeContent(binding.edit.text.toString())
                 viewModel.save()
                 AndroidUtils.hideKeyboard(requireView())
@@ -73,5 +73,10 @@ class NewPostFragment : Fragment() {
             }
         }
         return binding.root
+    }
+
+    fun saveText(text: String) {
+        val editText = context?.getSharedPreferences(APP_NAME, MODE_PRIVATE)
+        editText?.edit()?.apply { putString(APP_NAME, text).apply() }
     }
 }
