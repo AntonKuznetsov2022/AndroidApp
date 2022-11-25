@@ -17,4 +17,8 @@
     <string name="cancel">Отмена</string>
     <string name="chooser_share_post">Поделиться постом</string>
     <string name="add_post">Добавить пост</string>
+    <string name="channel_remote_name">Уведомления с сервера</string>
+    <string name="channel_remote_description">Уведомления с удалённого сервера</string>
+    <string name="notification_user_liked">%1$s поставил лайк посту %2$s</string>
+    <string name="user_published_new_post">%1$s опубликовал новый пост:</string>
 </resources>

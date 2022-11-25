@@ -16,4 +16,8 @@
     <string name="cancel">Cancel</string>
     <string name="chooser_share_post">Share post</string>
     <string name="add_post">Add post</string>
+    <string name="channel_remote_name">Server notifications</string>
+    <string name="channel_remote_description">Notifications from remote server</string>
+    <string name="notification_user_liked">User %1$s liked %2$s\'s post</string>
+    <string name="user_published_new_post">User %1$s published new post:</string>
 </resources>

@@ -56,7 +56,7 @@ class NewPostFragment : Fragment() {
             ?.let(binding.edit::setText)
 
         binding.cancel.setOnClickListener {
-            saveText(binding.edit.text.toString())
+            saveText("")
             viewModel.cancel()
             findNavController().navigateUp()
         }
