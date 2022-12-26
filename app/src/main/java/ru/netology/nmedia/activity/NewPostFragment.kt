@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.activity
 
 
 import android.content.Context.MODE_PRIVATE
@@ -8,8 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import ru.netology.nmedia.util.AndroidUtils
+import ru.netology.nmedia.LongArg
+import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.StringArg
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 
 
@@ -23,9 +28,7 @@ class NewPostFragment : Fragment() {
         var Bundle.postIdArg: Long by LongArg
     }
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+    private val viewModel: PostViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,7 +39,7 @@ class NewPostFragment : Fragment() {
 
         val editText = context?.getSharedPreferences(APP_NAME, MODE_PRIVATE)
         if (editText != null) {
-                binding.edit.setText(editText.getString(APP_NAME, ""))
+            binding.edit.setText(editText.getString(APP_NAME, ""))
         }
 
         if (arguments?.textArg != null) {
@@ -69,9 +72,13 @@ class NewPostFragment : Fragment() {
                 viewModel.changeContent(binding.edit.text.toString())
                 viewModel.save()
                 AndroidUtils.hideKeyboard(requireView())
-                findNavController().navigateUp()
             }
         }
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.loadPosts()
+            findNavController().navigateUp()
+        }
+
         return binding.root
     }
 
