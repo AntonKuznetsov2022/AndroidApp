@@ -1,9 +1,10 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
@@ -12,6 +13,9 @@ interface PostDao {
 
     @Insert
     fun insert(post: PostEntity)
+
+    @Insert
+    fun insert(posts: List<PostEntity>)
 
     @Query("UPDATE PostEntity SET content = :content WHERE id = :id")
     fun updateContentById(id: Long, content: String)

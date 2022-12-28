@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.dto.Post
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -15,7 +16,6 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onPlayVideo(post: Post) {}
-    fun onPost(post: Post) {}
 }
 
 class PostAdapter(
@@ -40,7 +40,7 @@ class PostViewHolder(
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
-            published.text = post.published
+            published.text = post.published.toString()
             content.text = post.content
             share.text = "${countText(post.shares)}"
             viewsCount.text = countText(post.views).toString()
@@ -57,10 +57,6 @@ class PostViewHolder(
             }
             videoPlayer.setOnClickListener {
                 onInteractionListener.onPlayVideo(post)
-            }
-
-            root.setOnClickListener {
-                onInteractionListener.onPost(post)
             }
 
             share.setOnClickListener {
