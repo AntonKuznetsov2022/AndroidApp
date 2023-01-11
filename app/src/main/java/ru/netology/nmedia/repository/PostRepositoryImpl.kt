@@ -71,8 +71,6 @@ class PostRepositoryImpl : PostRepository {
         newCallLikes(request, callback)
     }
 
-
-
     override fun save(post: Post, callback: PostRepository.Callback<Unit>) {
         val request: Request = Request.Builder()
             .post(gson.toJson(post).toRequestBody(jsonType))
