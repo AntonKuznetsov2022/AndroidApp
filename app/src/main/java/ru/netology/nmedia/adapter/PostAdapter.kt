@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,11 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.load.resource.bitmap.FitCenter
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
@@ -15,7 +20,6 @@ interface OnInteractionListener {
     fun onShare(post: Post) {}
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
-    fun onPlayVideo(post: Post) {}
 }
 
 class PostAdapter(
@@ -39,8 +43,17 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
+
+            Glide.with(binding.avatar)
+                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
+                .transform(CircleCrop())
+                .placeholder(R.drawable.ic_baseline_replay_circle_filled_24)
+                .error(R.drawable.ic_baseline_clear_24)
+                .timeout(10_000)
+                .into(binding.avatar)
+
             author.text = post.author
-            published.text = post.published.toString()
+            published.text = post.published
             content.text = post.content
             share.text = "${countText(post.shares)}"
             viewsCount.text = countText(post.views).toString()
@@ -50,13 +63,14 @@ class PostViewHolder(
                 onInteractionListener.onLike(post)
             }
 
-            if (post.video != null) groupVideo.visibility = View.VISIBLE
-
-            videoButton.setOnClickListener {
-                onInteractionListener.onPlayVideo(post)
-            }
-            videoPlayer.setOnClickListener {
-                onInteractionListener.onPlayVideo(post)
+            if (post.attachment != null && post.attachment.type == "IMAGE") {
+                postImage.visibility = View.VISIBLE
+                Glide.with(binding.postImage)
+                    .load("http://10.0.2.2:9999/images/${post.attachment.url}")
+                    .placeholder(R.drawable.ic_baseline_replay_circle_filled_24)
+                    .error(R.drawable.ic_baseline_clear_24)
+                    .timeout(10_000)
+                    .into(binding.postImage)
             }
 
             share.setOnClickListener {
