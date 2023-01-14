@@ -11,7 +11,7 @@ interface PostRepository {
     fun removeById(id: Long, callback: Callback<Unit>)
 
     interface Callback<T> {
-        fun onSuccess(data: T)
-        fun onError(e: Exception)
+        fun onSuccess(data: T) {}
+        fun onError(e: Exception) {}
     }
 }
