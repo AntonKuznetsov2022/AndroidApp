@@ -1,9 +1,13 @@
 package ru.netology.nmedia.adapter
 
+import android.icu.number.NumberRangeFormatter.RangeIdentityFallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupMenu
+import androidx.annotation.DrawableRes
+import androidx.constraintlayout.helper.widget.MotionPlaceholder
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -11,9 +15,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.FitCenter
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -44,13 +50,8 @@ class PostViewHolder(
     fun bind(post: Post) {
         binding.apply {
 
-            Glide.with(binding.avatar)
-                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
-                .transform(CircleCrop())
-                .placeholder(R.drawable.ic_baseline_replay_circle_filled_24)
-                .error(R.drawable.ic_baseline_clear_24)
-                .timeout(10_000)
-                .into(binding.avatar)
+            val urlAvatars = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
+            binding.avatar.load(urlAvatars)
 
             author.text = post.author
             published.text = post.published
@@ -63,15 +64,12 @@ class PostViewHolder(
                 onInteractionListener.onLike(post)
             }
 
-            if (post.attachment != null && post.attachment.type == "IMAGE") {
+            if (post.attachment?.type == AttachmentType.IMAGE) {
                 postImage.visibility = View.VISIBLE
-                Glide.with(binding.postImage)
-                    .load("http://10.0.2.2:9999/images/${post.attachment.url}")
-                    .placeholder(R.drawable.ic_baseline_replay_circle_filled_24)
-                    .error(R.drawable.ic_baseline_clear_24)
-                    .timeout(10_000)
-                    .into(binding.postImage)
             }
+
+            val urlImages = "${BuildConfig.BASE_URL}/images/${post.attachment?.url}"
+            binding.postImage.load(urlImages)
 
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
@@ -103,6 +101,20 @@ fun countText(count: Int) = when (count) {
     in 9999 downTo 1000 -> "${count / 1000}.${count % 1000 / 100}K"
     in 999_999 downTo 10_000 -> "${count / 1000}K"
     else -> "${count / 1_000_000}.${count % 1_000_000 / 100_000}M"
+}
+
+fun ImageView.load(
+    url: String,
+    @DrawableRes placeholder: Int = R.drawable.ic_baseline_replay_circle_filled_24,
+    @DrawableRes fallback: Int = R.drawable.ic_baseline_clear_24,
+    timeOutMs: Int = 10_000
+) {
+    Glide.with(this)
+        .load(url)
+        .placeholder(placeholder)
+        .error(fallback)
+        .timeout(timeOutMs)
+        .into(this)
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
