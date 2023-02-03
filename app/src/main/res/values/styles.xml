@@ -17,6 +17,19 @@
         <item name="android:minHeight">@dimen/icon_button_min_size</item>
     </style>
 
+    <style name="Widget.AppTheme.Views" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="iconTint">@color/share_tint</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
+        <item name="android:minWidth">@dimen/icon_button_min_size</item>
+        <item name="android:minHeight">@dimen/icon_button_min_size</item>
+    </style>
+
+    <style name="Widget.AppTheme.NotLoad" parent="Widget.MaterialComponents.TextView">
+        <item name="iconTint">@color/share_tint</item>
+        <item name="android:minWidth">@dimen/icon_button_min_size</item>
+        <item name="android:minHeight">@dimen/icon_button_min_size</item>
+    </style>
+
     <style name="Widget.AppTheme.PostMenuButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="iconTint">@color/share_tint</item>
         <item name="iconPadding">0dp</item>
