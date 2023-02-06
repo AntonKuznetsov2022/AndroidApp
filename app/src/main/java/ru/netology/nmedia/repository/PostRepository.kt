@@ -11,5 +11,4 @@ interface PostRepository {
     suspend fun shareById(id: Long)
     suspend fun save(post: Post)
     suspend fun removeById(id: Long)
-    suspend fun savePost(post: Post)
 }

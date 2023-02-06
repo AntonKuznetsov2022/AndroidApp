@@ -27,21 +27,16 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
                 postsResponse.code(),
                 postsResponse.message()
             )
+            postDao.getPostOnServer().forEach { save(it.toDto()) }
+
+            postDao.removeAll()
+
             postDao.insert(body.toEntity())
 
-            postDao.getPostOnServer().forEach { save(it.toDto()) }
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
             throw UnknownError
-        }
-    }
-
-    override suspend fun savePost(post: Post) {
-        try {
-            postDao.insert(PostEntity.fromDto(post))
-        } catch (e: Exception) {
-            throw RuntimeException(e)
         }
     }
 
