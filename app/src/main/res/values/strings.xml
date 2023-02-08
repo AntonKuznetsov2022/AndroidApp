@@ -25,4 +25,5 @@
     <string name="empty_posts">There are no posts.\nIf you create a new post, it will appear here</string>
     <string name="google_play_unavailable">Google Api Unavailable</string>
     <string name="menu_refresh">Menu refresh</string>
+    <string name="post_not_load">Post doesn\'t load on Server</string>
 </resources>

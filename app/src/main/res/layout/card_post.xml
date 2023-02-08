@@ -102,26 +102,37 @@
         app:layout_constraintTop_toBottomOf="@id/barrierContent2"
         tools:text="@sample/posts.json/data/shares" />
 
-    <ImageView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/views"
+        style="@style/Widget.AppTheme.Views"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/indent"
-        android:layout_marginEnd="@dimen/indent_count"
         android:background="@android:color/transparent"
         android:contentDescription="@string/views"
-        android:src="@drawable/ic_views_24"
-        app:layout_constraintEnd_toStartOf="@id/viewsCount"
-        app:layout_constraintTop_toTopOf="@id/barrierContent2" />
-
-    <TextView
-        android:id="@+id/viewsCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/indent"
+        app:icon="@drawable/ic_views_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/barrierContent2"
-        tools:text="1000" />
+        tools:text="@sample/posts.json/data/shares" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupAction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="like,share,views" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/postNotLoad"
+        style="@style/Widget.AppTheme.NotLoad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:hint="@string/post_not_load"
+        android:visibility="invisible"
+        app:icon="@drawable/ic_baseline_clear_24"
+        app:layout_constraintEnd_toEndOf="@+id/views"
+        app:layout_constraintStart_toStartOf="@+id/like"
+        app:layout_constraintTop_toTopOf="@id/barrierContent2" />
 
     <ImageView
         android:id="@+id/postImage"

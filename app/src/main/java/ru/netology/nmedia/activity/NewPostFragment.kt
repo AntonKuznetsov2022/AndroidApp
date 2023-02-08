@@ -1,6 +1,5 @@
 package ru.netology.nmedia.activity
 
-
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -76,17 +75,10 @@ class NewPostFragment : Fragment() {
             }
         }
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            if (state.error) {
-                Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show()
-            } else {
-                viewModel.postCreated.observe(viewLifecycleOwner) {
-                    viewModel.loadPosts()
-                    findNavController().navigateUp()
-                }
-            }
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            findNavController().navigateUp()
+            viewModel.loadPosts()
         }
-
         return binding.root
     }
 

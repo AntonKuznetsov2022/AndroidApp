@@ -45,7 +45,7 @@ android {
 dependencies {
     def core_version = "1.9.0"
     def appcompat_version = "1.6.0"
-    def mdc_version = "1.7.0"
+    def mdc_version = "1.8.0"
     def constraintlayout_version = "2.1.4"
     def recyclerview_version = "1.2.1"
     def junit_version = "4.13.2"
@@ -65,6 +65,8 @@ dependencies {
     def retrofit_version = "2.9.0"
     def retrofitgson_version = "2.9.0"
     def okhhtplogging_version = "4.10.0"
+    def coroutines_version = "1.6.4"
+    def coordinatorlayout_version = "1.2.0"
 
 
     implementation "androidx.core:core-ktx:$core_version"
@@ -81,6 +83,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     implementation "com.google.firebase:firebase-messaging-ktx"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
@@ -90,6 +93,9 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitgson_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhhtplogging_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayout_version"
+
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"

@@ -8,17 +8,21 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.helper.widget.MotionPlaceholder
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 
 interface OnInteractionListener {
@@ -51,25 +55,34 @@ class PostViewHolder(
         binding.apply {
 
             val urlAvatars = "${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}"
-            binding.avatar.load(urlAvatars)
+            avatar.loadCircleCrop(urlAvatars)
 
             author.text = post.author
             published.text = post.published
             content.text = post.content
             share.text = "${countText(post.shares)}"
-            viewsCount.text = countText(post.views).toString()
+            views.text = "${countText(post.views)}"
             like.isChecked = post.likedByMe
             like.text = "${countText(post.likes)}"
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
             }
 
-            if (post.attachment?.type == AttachmentType.IMAGE) {
-                postImage.visibility = View.VISIBLE
+            if (post.author == "Name_Name") {
+                postNotLoad.isVisible = true
+                groupAction.isVisible = false
+            } else {
+                postNotLoad.isVisible = false
+                groupAction.isVisible = true
             }
 
-            val urlImages = "${BuildConfig.BASE_URL}/images/${post.attachment?.url}"
-            binding.postImage.load(urlImages)
+            if (post.attachment?.type == AttachmentType.IMAGE) {
+                postImage.visibility = View.VISIBLE
+                val urlImages = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
+                postImage.load(urlImages)
+            } else {
+                postImage.visibility = View.GONE
+            }
 
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
@@ -103,19 +116,15 @@ fun countText(count: Int) = when (count) {
     else -> "${count / 1_000_000}.${count % 1_000_000 / 100_000}M"
 }
 
-fun ImageView.load(
-    url: String,
-    @DrawableRes placeholder: Int = R.drawable.ic_baseline_replay_circle_filled_24,
-    @DrawableRes fallback: Int = R.drawable.ic_baseline_clear_24,
-    timeOutMs: Int = 10_000
-) {
+fun ImageView.load(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
     Glide.with(this)
         .load(url)
-        .placeholder(placeholder)
-        .error(fallback)
-        .timeout(timeOutMs)
+        .timeout(10_000)
+        .transform(*transforms)
         .into(this)
-}
+
+fun ImageView.loadCircleCrop(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
+    load(url, CircleCrop(), *transforms)
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
     override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
