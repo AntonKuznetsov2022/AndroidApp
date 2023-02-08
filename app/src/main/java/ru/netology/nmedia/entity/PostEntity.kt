@@ -17,6 +17,7 @@ data class PostEntity(
     val shares: Int = 0,
     val views: Int = 0,
     val postStatusOnSever: Boolean = false,
+    val newPostHidden: Boolean = false,
 ) {
     fun toDto() =
         Post(id, author, authorAvatar, content, published, likedByMe, likes, shares, views)

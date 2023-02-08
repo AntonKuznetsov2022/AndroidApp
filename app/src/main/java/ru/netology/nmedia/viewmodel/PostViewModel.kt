@@ -2,7 +2,8 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
@@ -25,15 +26,20 @@ private val empty = Post(
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-        // упрощённый вариант
-        private val repository: PostRepository =
-            PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
+    // упрощённый вариант
+    private val repository: PostRepository =
+        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
 
     private val _state = MutableLiveData<FeedModelState>()
     val state: LiveData<FeedModelState>
         get() = _state
 
     val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
+        .asLiveData(Dispatchers.Default)
+    val newerCount: LiveData<Int> = data.switchMap {
+        val latestPostId = it.posts.firstOrNull()?.id ?: 0L
+        repository.getNewCount(latestPostId).asLiveData()
+    }
 
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
@@ -85,7 +91,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-
     fun edit(post: Post) {
         edited.value = post
     }
@@ -126,6 +131,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun shareById(id: Long) {
         // TODO()
+    }
+
+    fun showNewPosts() {
+        viewModelScope.launch {
+            try {
+                repository.showNewPosts()
+                _state.value = FeedModelState()
+            } catch (e: Exception) {
+                _state.value = FeedModelState(error = true)
+            }
+        }
     }
 
     fun removeById(id: Long) {
