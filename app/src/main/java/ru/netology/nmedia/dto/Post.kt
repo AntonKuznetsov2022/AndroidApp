@@ -3,7 +3,7 @@ package ru.netology.nmedia.dto
 import ru.netology.nmedia.enumeration.AttachmentType
 
 data class Post(
-    var id: Long,
+    val id: Long,
     val author: String,
     val authorAvatar: String,
     val content: String,

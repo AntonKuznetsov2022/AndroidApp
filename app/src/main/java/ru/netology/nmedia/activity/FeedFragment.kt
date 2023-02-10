@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -80,7 +81,16 @@ class FeedFragment : Fragment() {
             }
         }
 
-        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+        binding.newPostsBut.setOnClickListener {
+            binding.newPostsBut.isVisible = false
+            viewModel.showNewPosts()
+        }
+
+        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
+            binding.newPostsBut.isVisible = count > 0
+        }
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 if (positionStart == 0) {
                     binding.posts.smoothScrollToPosition(0)
@@ -88,7 +98,7 @@ class FeedFragment : Fragment() {
             }
         })
 
-        viewModel.data.observe(viewLifecycleOwner) {data ->
+        viewModel.data.observe(viewLifecycleOwner) { data ->
             adapter.submitList(data.posts)
             binding.emptyText.isVisible = data.empty
         }
@@ -98,6 +108,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.swipeRefresh.setOnRefreshListener {
+            binding.newPostsBut.isVisible = false
             viewModel.refresh()
         }
 

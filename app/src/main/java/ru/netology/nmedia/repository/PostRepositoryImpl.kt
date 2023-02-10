@@ -1,6 +1,12 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.map
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import ru.netology.nmedia.api.PostApi
 import ru.netology.nmedia.dao.PostDao
@@ -15,6 +21,42 @@ import okio.IOException
 
 class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     override val data = postDao.getAll().map(List<PostEntity>::toDto)
+        .flowOn(Dispatchers.Default)
+
+    override fun getNewCount(latestId: Long): Flow<Int> = flow {
+        while (true) {
+            delay(10_000)
+            try {
+                val postsResponse = PostApi.service.getNewer(latestId)
+                if (!postsResponse.isSuccessful) {
+                    throw ApiError(postsResponse.code(), postsResponse.message())
+                }
+                val body = postsResponse.body() ?: throw ApiError(
+                    postsResponse.code(),
+                    postsResponse.message()
+                )
+                postDao.insert(body.toEntity().map {
+                    it.copy(newPostHidden = true)
+                })
+                emit(postDao.newerCount())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+        .flowOn(Dispatchers.Default)
+
+    override suspend fun showNewPosts() {
+        try {
+            postDao.readAll()
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
 
     override suspend fun get() {
         try {
