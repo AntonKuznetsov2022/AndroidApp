@@ -3,7 +3,6 @@ package ru.netology.nmedia.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings.Global.putString
 import android.widget.Toast
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -48,8 +47,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         val navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-        savedInstanceState
-
         checkGoogleApiAvailability()
     }
 
