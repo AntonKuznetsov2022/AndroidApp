@@ -44,7 +44,7 @@ android {
 
 dependencies {
     def core_version = "1.9.0"
-    def appcompat_version = "1.6.0"
+    def appcompat_version = "1.6.1"
     def mdc_version = "1.8.0"
     def constraintlayout_version = "2.1.4"
     def recyclerview_version = "1.2.1"
@@ -67,6 +67,7 @@ dependencies {
     def okhhtplogging_version = "4.10.0"
     def coroutines_version = "1.6.4"
     def coordinatorlayout_version = "1.2.0"
+    def imagepicker_version = "2.1"
 
 
     implementation "androidx.core:core-ktx:$core_version"
@@ -95,6 +96,8 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okhhtplogging_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "androidx.coordinatorlayout:coordinatorlayout:$coordinatorlayout_version"
+    implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
+
 
 
     testImplementation "junit:junit:$junit_version"

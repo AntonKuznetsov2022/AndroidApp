@@ -63,6 +63,13 @@ class FeedFragment : Fragment() {
                 viewModel.edit(post)
             }
 
+            override fun onPicture(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_pictureFragment,
+                    Bundle().apply { textArg = post.attachment?.url })
+                //viewModel.edit(post)
+            }
+
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }

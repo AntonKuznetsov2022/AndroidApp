@@ -28,4 +28,8 @@
     <string name="menu_refresh">Обновление меню</string>
     <string name="post_not_load">Пост не загружен на сервер</string>
     <string name="new_posts">Свежие записи</string>
+    <string name="clear">Очистить</string>
+    <string name="photo_error">Ошибка</string>
+    <string name="feed_title">Список постов</string>
+    <string name="new_post_title">Новый пост</string>
 </resources>
