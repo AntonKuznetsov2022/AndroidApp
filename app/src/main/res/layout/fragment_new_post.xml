@@ -64,7 +64,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/title_gallery"
             android:padding="@dimen/fab_margin"
-            app:srcCompat="@drawable/baseline_add_photo_alternate_24" />
+            app:srcCompat="@drawable/ic_gallery" />
 
         <ImageView
             android:id="@+id/photo"
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/title_camera"
             android:padding="@dimen/fab_margin"
-            app:srcCompat="@drawable/baseline_add_a_photo_24" />
+            app:srcCompat="@drawable/ic_photo" />
 
     </LinearLayout>
 
