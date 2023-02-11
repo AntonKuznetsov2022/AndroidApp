@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.NewPostFragment">
 
     <ScrollView
@@ -63,7 +64,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/title_gallery"
             android:padding="@dimen/fab_margin"
-            android:src="@drawable/baseline_add_photo_alternate_24" />
+            app:srcCompat="@drawable/baseline_add_photo_alternate_24" />
 
         <ImageView
             android:id="@+id/photo"
@@ -71,7 +72,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/title_camera"
             android:padding="@dimen/fab_margin"
-            android:src="@drawable/baseline_add_a_photo_24" />
+            app:srcCompat="@drawable/baseline_add_a_photo_24" />
 
     </LinearLayout>
 
