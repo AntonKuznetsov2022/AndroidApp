@@ -2,14 +2,18 @@ package ru.netology.nmedia.activity
 
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
+import android.view.*
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toFile
+import androidx.core.view.MenuProvider
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.LongArg
 import ru.netology.nmedia.R
@@ -37,13 +41,30 @@ class NewPostFragment : Fragment() {
     ): View? {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
 
+        val photoLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                when (it.resultCode) {
+                    ImagePicker.RESULT_ERROR -> {
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.photo_error),
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                    else -> {
+                        val uri = it.data?.data ?: return@registerForActivityResult
+                        viewModel.changePhoto(uri.toFile(), uri)
+                    }
+                }
+            }
+
+
         val editText = context?.getSharedPreferences(APP_NAME, MODE_PRIVATE)
         if (editText != null) {
             binding.edit.setText(editText.getString(APP_NAME, ""))
         }
 
         if (arguments?.textArg != null) {
-            binding.cancel.visibility = View.VISIBLE
             with(binding.edit) {
                 requestFocus()
                 setSelection(text.toString().length)
@@ -58,22 +79,59 @@ class NewPostFragment : Fragment() {
         arguments?.textArg
             ?.let(binding.edit::setText)
 
-        binding.cancel.setOnClickListener {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.new_post_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                when (menuItem.itemId) {
+                    R.id.new_post -> {
+                        saveText("")
+                        viewModel.changeContent(binding.edit.text.toString())
+                        viewModel.save()
+                        AndroidUtils.hideKeyboard(requireView())
+                        true
+                    }
+                    else -> false
+                }
+        }, viewLifecycleOwner)
+
+        binding.clear.setOnClickListener {
+            viewModel.clearPhoto()
+        }
+
+        binding.photo.setOnClickListener {
+            ImagePicker.with(this)
+                .cameraOnly()
+                .crop()
+                .compress(2048)
+                .createIntent(photoLauncher::launch)
+        }
+
+        binding.gallery.setOnClickListener {
+            ImagePicker.with(this)
+                .galleryOnly()
+                .crop()
+                .compress(2048)
+                .createIntent(photoLauncher::launch)
+        }
+
+        viewModel.media.observe(viewLifecycleOwner) {media ->
+            if (media == null) {
+                binding.previewContainer.isGone = true
+                return@observe
+            }
+
+            binding.previewContainer.isVisible = true
+            binding.preview.setImageURI(media.uri)
+        }
+
+/*        binding.cancel.setOnClickListener {
             saveText("")
             viewModel.cancel()
             findNavController().navigateUp()
-        }
-
-        binding.add.setOnClickListener {
-            if (binding.edit.text.isNullOrBlank()) {
-                findNavController().navigateUp()
-            } else {
-                saveText("")
-                viewModel.changeContent(binding.edit.text.toString())
-                viewModel.save()
-                AndroidUtils.hideKeyboard(requireView())
-            }
-        }
+        }*/
 
         viewModel.postCreated.observe(viewLifecycleOwner) {
             findNavController().navigateUp()

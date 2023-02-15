@@ -27,4 +27,8 @@
     <string name="menu_refresh">Menu refresh</string>
     <string name="post_not_load">Post doesn\'t load on Server</string>
     <string name="new_posts">New posts</string>
+    <string name="clear">Clear</string>
+    <string name="photo_error">Error</string>
+    <string name="feed_title">Feed</string>
+    <string name="new_post_title">New post</string>
 </resources>

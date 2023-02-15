@@ -1,28 +1,21 @@
 package ru.netology.nmedia.adapter
 
-import android.icu.number.NumberRangeFormatter.RangeIdentityFallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
-import androidx.annotation.DrawableRes
-import androidx.constraintlayout.helper.widget.MotionPlaceholder
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.bumptech.glide.load.resource.bitmap.FitCenter
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
-import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 
 interface OnInteractionListener {
@@ -30,6 +23,7 @@ interface OnInteractionListener {
     fun onShare(post: Post) {}
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
+    fun onPicture(post: Post) {}
 }
 
 class PostAdapter(
@@ -78,8 +72,13 @@ class PostViewHolder(
 
             if (post.attachment?.type == AttachmentType.IMAGE) {
                 postImage.visibility = View.VISIBLE
-                val urlImages = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
+                val urlImages = "${BuildConfig.BASE_URL}/media/${post.attachment.url}"
                 postImage.load(urlImages)
+
+                postImage.setOnClickListener {
+                    onInteractionListener.onPicture(post)
+                }
+
             } else {
                 postImage.visibility = View.GONE
             }
@@ -120,6 +119,8 @@ fun countText(count: Int) = when (count) {
 fun ImageView.load(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
     Glide.with(this)
         .load(url)
+        .error(R.drawable.ic_baseline_clear_24)
+        .placeholder(R.drawable.ic_baseline_replay_circle_filled_24)
         .timeout(10_000)
         .transform(*transforms)
         .into(this)
