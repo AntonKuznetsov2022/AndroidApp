@@ -1,0 +1,61 @@
+package ru.netology.nmedia.activity
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.databinding.FragmentSignInBinding
+import ru.netology.nmedia.viewmodel.SignInViewModel
+
+class SignInFragment : Fragment() {
+
+    lateinit var binding: FragmentSignInBinding
+    private val viewModel by viewModels<SignInViewModel>()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSignInBinding.inflate(inflater, container, false)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigateUp()
+        }
+
+        binding.loginBut.setOnClickListener {
+            viewModel.signIn(binding.loginIn.text.toString(), binding.passwordIn.text.toString())
+        }
+
+        binding.registrationBut.setOnClickListener {
+            findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
+        }
+
+        viewModel.stateSignIn.observe(viewLifecycleOwner) { state ->
+            if (state.signInError) {
+                Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
+                    .show()
+            }
+            if (state.signInWrong) {
+                Snackbar.make(binding.root, R.string.sign_in_error, Snackbar.LENGTH_LONG)
+                    .show()
+            }
+        }
+
+        viewModel.signInApp.observe(viewLifecycleOwner) {
+            AppAuth.getInstance().setAuth(it.id, it.token)
+            findNavController().navigateUp()
+            Snackbar.make(binding.root, R.string.login_success, Snackbar.LENGTH_LONG)
+                .show()
+        }
+
+        return binding.root
+    }
+}

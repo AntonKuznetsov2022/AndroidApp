@@ -4,8 +4,11 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -18,6 +21,7 @@ import java.io.File
 
 private val empty = Post(
     id = 0,
+    authorId = 0L,
     content = "",
     author = "Name_Name",
     authorAvatar = "",
@@ -29,7 +33,6 @@ private val empty = Post(
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    // упрощённый вариант
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
 
@@ -37,8 +40,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val state: LiveData<FeedModelState>
         get() = _state
 
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
-        .asLiveData(Dispatchers.Default)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val data: LiveData<FeedModel> = AppAuth.getInstance().data.flatMapLatest { authState ->
+        repository.data
+            .map { posts ->
+                FeedModel(posts.map {
+                    it.copy(ownedByMe = authState?.id == it.authorId)
+                }, posts.isEmpty())
+            }
+    }.asLiveData(Dispatchers.Default)
+
     val newerCount: LiveData<Int> = data.switchMap {
         val latestPostId = it.posts.firstOrNull()?.id ?: 0L
         repository.getNewCount(latestPostId).asLiveData()
@@ -93,9 +104,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let {
             viewModelScope.launch {
                 try {
-                    when(val media = media.value) {
+                    when (val media = media.value) {
                         null -> repository.save(it)
-                        else -> {repository.saveWithAttachment(it, media)}
+                        else -> {
+                            repository.saveWithAttachment(it, media)
+                        }
                     }
                     _postCreated.value = Unit
                     edited.value = empty
@@ -113,9 +126,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = post
     }
 
-    fun cancel() {
+/*    fun cancel() {
         edited.value = empty
-    }
+    }*/
 
     fun changeContent(content: String) {
         val text = content.trim()

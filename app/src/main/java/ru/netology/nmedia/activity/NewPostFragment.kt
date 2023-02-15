@@ -38,7 +38,7 @@ class NewPostFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
 
         val photoLauncher =
