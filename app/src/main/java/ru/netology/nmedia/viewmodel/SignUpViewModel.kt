@@ -10,7 +10,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
@@ -65,7 +65,7 @@ class SignUpViewModel : ViewModel() {
 
     private suspend fun registration(login: String, password: String, name: String) {
         try {
-            val postsResponse = PostApi.service.registerUser(login, password, name)
+            val postsResponse = Api.service.registerUser(login, password, name)
 
             if (!postsResponse.isSuccessful) {
                 throw ApiError(postsResponse.code(), postsResponse.message())
@@ -95,7 +95,7 @@ class SignUpViewModel : ViewModel() {
                 "file", media.file.name, media.file.asRequestBody()
             )
 
-            val postsResponse = PostApi.service.registerWithPhoto(
+            val postsResponse = Api.service.registerWithPhoto(
                 login.toRequestBody("text/plain".toMediaType()),
                 password.toRequestBody("text/plain".toMediaType()),
                 name.toRequestBody("text/plain".toMediaType()),
