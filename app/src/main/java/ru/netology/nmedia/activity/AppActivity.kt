@@ -1,9 +1,15 @@
 package ru.netology.nmedia.activity
 
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -11,9 +17,13 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
-import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.viewmodel.AuthViewModel
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
 
@@ -47,6 +57,51 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         val navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        val authViewModel by viewModels<AuthViewModel>()
+        var previousMenuProvider: MenuProvider? = null
+
+        authViewModel.data.observe(this) {
+            previousMenuProvider?.let(::removeMenuProvider)
+
+            addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_auth, menu)
+                    menu.setGroupVisible(R.id.unauthorized, !authViewModel.authorized)
+                    menu.setGroupVisible(R.id.authorized, authViewModel.authorized)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    when (menuItem.itemId) {
+                        R.id.login -> {
+                            findNavController(R.id.nav_host_fragment).navigate(R.id.action_feedFragment_to_signInFragment)
+                            true
+                        }
+                        R.id.registration -> {
+                            findNavController(R.id.nav_host_fragment).navigate(R.id.action_feedFragment_to_signUpFragment)
+                            true
+                        }
+                        R.id.logout -> {
+                            MaterialAlertDialogBuilder(this@AppActivity)
+                                .setTitle(R.string.exit_app)
+                                .setMessage(R.string.exit)
+                                .setNegativeButton(R.string.no) { dialog, _ ->
+                                    dialog.cancel()
+                                }
+                                .setPositiveButton(R.string.yes) { _, _ ->
+                                    AppAuth.getInstance().removeAuth()
+                                    Toast.makeText(this@AppActivity, R.string.login_exit, Toast.LENGTH_SHORT).show()
+                                }
+                                .show()
+                            true
+                        }
+                        else -> false
+                    }
+            }.also {
+                previousMenuProvider = it
+            })
+        }
+
         checkGoogleApiAvailability()
     }
 
@@ -60,7 +115,11 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 getErrorDialog(this@AppActivity, code, 9000)?.show()
                 return
             }
-            Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG)
+            Toast.makeText(
+                this@AppActivity,
+                R.string.google_play_unavailable,
+                Toast.LENGTH_LONG
+            )
                 .show()
         }
 
@@ -72,6 +131,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration)
-                ||super.onSupportNavigateUp()
+                || super.onSupportNavigateUp()
     }
 }

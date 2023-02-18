@@ -1,25 +1,29 @@
 package ru.netology.nmedia.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.view.isGone
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.*
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -32,15 +36,34 @@ class FeedFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentFeedBinding.inflate(inflater, container, false)
+
+        val token = context?.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            ?.getString("TOKEN_KEY", null)
 
         val adapter = PostAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                if (!post.likedByMe) {
-                    viewModel.likeById(post.id)
+
+                if (token == null) {
+                    MaterialAlertDialogBuilder(context!!)
+                        .setTitle(R.string.log_account)
+                        .setMessage(R.string.enter_in_app)
+                        .setNegativeButton(R.string.guest) { dialog, _ ->
+                            dialog.cancel()
+                        }
+                        .setPositiveButton(R.string.login) { _, _ ->
+                            findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+                            Snackbar.make(binding.root, R.string.login_exit, Snackbar.LENGTH_LONG)
+                                .show()
+                        }
+                        .show()
                 } else {
-                    viewModel.unlikeById(post.id)
+                    if (!post.likedByMe) {
+                        viewModel.likeById(post.id)
+                    } else {
+                        viewModel.unlikeById(post.id)
+                    }
                 }
             }
 
@@ -67,7 +90,6 @@ class FeedFragment : Fragment() {
                 findNavController().navigate(
                     R.id.action_feedFragment_to_pictureFragment,
                     Bundle().apply { textArg = post.attachment?.url })
-                //viewModel.edit(post)
             }
 
             override fun onRemove(post: Post) {
@@ -93,17 +115,22 @@ class FeedFragment : Fragment() {
             viewModel.showNewPosts()
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
-            binding.newPostsBut.isVisible = count > 0
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            if (it > 0) {
+                binding.newPostsBut.isVisible = true
+            } else {
+                binding.newPostsBut.isGone = true
+            }
         }
 
-        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                if (positionStart == 0) {
-                    binding.posts.smoothScrollToPosition(0)
+        adapter.registerAdapterDataObserver(
+            object : RecyclerView.AdapterDataObserver() {
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    if (positionStart == 0) {
+                        binding.posts.smoothScrollToPosition(0)
+                    }
                 }
-            }
-        })
+            })
 
         viewModel.data.observe(viewLifecycleOwner) { data ->
             adapter.submitList(data.posts)
@@ -120,7 +147,20 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (token == null) {
+                MaterialAlertDialogBuilder(this.requireContext())
+                    .setTitle(R.string.log_account)
+                    .setMessage(R.string.enter_in_app)
+                    .setNegativeButton(R.string.guest) { dialog, _ ->
+                        dialog.cancel()
+                    }
+                    .setPositiveButton(R.string.login) { _, _ ->
+                        findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+                    }
+                    .show()
+            } else {
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            }
         }
         return binding.root
     }
