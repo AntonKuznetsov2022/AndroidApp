@@ -12,6 +12,7 @@ import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.model.AuthModel
 
 private val logging = HttpLoggingInterceptor().apply {
@@ -38,7 +39,7 @@ private val retrofit = Retrofit.Builder()
     .baseUrl("${BuildConfig.BASE_URL}/api/")
     .build()
 
-interface PostApiService {
+interface ApiService {
 
     @GET("posts")
     suspend fun getAll(): Response<List<Post>>
@@ -66,6 +67,9 @@ interface PostApiService {
     @POST("users/authentication")
     suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<AuthModel>
 
+    @POST("users/push-tokens")
+    suspend fun senPushToken(@Body pushToken: PushToken): Response<Unit>
+
     @FormUrlEncoded
     @POST("users/registration")
     suspend fun registerUser(
@@ -84,8 +88,8 @@ interface PostApiService {
     ): Response<AuthModel>
 }
 
-object PostApi {
-    val service: PostApiService by lazy {
-        retrofit.create(PostApiService::class.java)
+object Api {
+    val service: ApiService by lazy {
+        retrofit.create(ApiService::class.java)
     }
 }

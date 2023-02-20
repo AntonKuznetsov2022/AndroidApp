@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.model.AuthModel
 import ru.netology.nmedia.model.SignInModelState
@@ -24,7 +24,7 @@ class SignInViewModel : ViewModel() {
 
     fun signIn(login: String, password: String) = viewModelScope.launch {
         try {
-            val postsResponse = PostApi.service.updateUser(login, password)
+            val postsResponse = Api.service.updateUser(login, password)
             if (!postsResponse.isSuccessful) {
                 _stateSignIn.value = SignInModelState(signInError = true)
             }
