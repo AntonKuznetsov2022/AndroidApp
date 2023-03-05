@@ -4,15 +4,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.model.AuthModel
 import ru.netology.nmedia.model.SignInModelState
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
+import javax.inject.Inject
 
-class SignInViewModel : ViewModel() {
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val apiService: ApiService,
+) : ViewModel() {
 
     private val _stateSignIn = MutableLiveData<SignInModelState>()
     val stateSignIn: LiveData<SignInModelState>
@@ -24,7 +29,7 @@ class SignInViewModel : ViewModel() {
 
     fun signIn(login: String, password: String) = viewModelScope.launch {
         try {
-            val postsResponse = Api.service.updateUser(login, password)
+            val postsResponse = apiService.updateUser(login, password)
             if (!postsResponse.isSuccessful) {
                 _stateSignIn.value = SignInModelState(signInError = true)
             }
