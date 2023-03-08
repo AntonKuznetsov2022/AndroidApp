@@ -2,15 +2,16 @@ package ru.netology.nmedia.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.*
+import androidx.paging.PagingData
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.MediaModel
 import ru.netology.nmedia.repository.PostRepository
@@ -42,19 +43,19 @@ class PostViewModel @Inject constructor(
     val state: LiveData<FeedModelState>
         get() = _state
 
-    val data: LiveData<FeedModel> = appAuth.data.flatMapLatest { authState ->
+    val data: Flow<PagingData<Post>> = appAuth.data.flatMapLatest { authState ->
         repository.data
             .map { posts ->
-                FeedModel(posts.map {
+                posts.map {
                     it.copy(ownedByMe = authState?.id == it.authorId)
-                }, posts.isEmpty())
+                }
             }
-    }.asLiveData(Dispatchers.Default)
+    }.flowOn(Dispatchers.Default)
 
-    val newerCount: LiveData<Int> = data.switchMap {
+/*   val newerCount: LiveData<Int> = data.switchMap {
         val latestPostId = it.posts.firstOrNull()?.id ?: 0L
         repository.getNewCount(latestPostId).asLiveData()
-    }
+    }*/
 
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
@@ -89,7 +90,7 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun refresh() {
+/*    fun refresh() {
         viewModelScope.launch {
             try {
                 _state.value = FeedModelState(refreshing = true)
@@ -99,7 +100,7 @@ class PostViewModel @Inject constructor(
                 _state.value = FeedModelState(error = true)
             }
         }
-    }
+    }*/
 
     fun save() {
         edited.value?.let {

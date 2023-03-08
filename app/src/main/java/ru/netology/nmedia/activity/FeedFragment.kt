@@ -10,12 +10,16 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.engine.Engine.LoadStatus
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.*
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -115,13 +119,13 @@ class FeedFragment : Fragment() {
             viewModel.showNewPosts()
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) {
+/*        viewModel.newerCount.observe(viewLifecycleOwner) {
             if (it > 0) {
                 binding.newPostsBut.isVisible = true
             } else {
                 binding.newPostsBut.isGone = true
             }
-        }
+        }*/
 
         adapter.registerAdapterDataObserver(
             object : RecyclerView.AdapterDataObserver() {
@@ -132,10 +136,15 @@ class FeedFragment : Fragment() {
                 }
             })
 
-        viewModel.data.observe(viewLifecycleOwner) { data ->
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest {
+                adapter.submitData(it)
+            }
+        }
+/*        viewModel.data.observe(viewLifecycleOwner) { data ->
             adapter.submitList(data.posts)
             binding.emptyText.isVisible = data.empty
-        }
+        }*/
 
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
@@ -143,7 +152,15 @@ class FeedFragment : Fragment() {
 
         binding.swipeRefresh.setOnRefreshListener {
             binding.newPostsBut.isVisible = false
-            viewModel.refresh()
+            adapter.refresh()
+        }
+
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest {
+                binding.swipeRefresh.isRefreshing = it.refresh is LoadState.Loading
+                        || it.append is LoadState.Loading
+                        || it.prepend is LoadState.Loading
+            }
         }
 
         binding.fab.setOnClickListener {

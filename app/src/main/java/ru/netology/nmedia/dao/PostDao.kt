@@ -1,5 +1,6 @@
 package ru.netology.nmedia.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
@@ -9,6 +10,9 @@ interface PostDao {
 
     @Query("SELECT * FROM PostEntity WHERE newPostHidden = 0 ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
+
+    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    fun allPostPaging(): PagingSource<Int, PostEntity>
 
     @Query("SELECT * FROM PostEntity WHERE postStatusOnSever = 1 ORDER BY id DESC")
     suspend fun getPostOnServer(): List<PostEntity>
