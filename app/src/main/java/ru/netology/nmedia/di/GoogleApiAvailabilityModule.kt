@@ -11,6 +11,5 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class GoogleApiAvailabilityModule {
     @Provides
-    @Singleton
     fun provideGoogleApiAvailability(): GoogleApiAvailability = GoogleApiAvailability.getInstance()
 }
