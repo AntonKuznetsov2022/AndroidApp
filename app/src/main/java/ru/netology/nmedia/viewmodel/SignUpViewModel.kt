@@ -5,12 +5,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
@@ -20,8 +21,12 @@ import ru.netology.nmedia.model.SignUpModelState
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
 
-class SignUpViewModel : ViewModel() {
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val apiService: ApiService,
+) : ViewModel() {
 
     private val _stateSignUp = MutableLiveData<SignUpModelState>()
     val stateSignUp: LiveData<SignUpModelState>
@@ -65,7 +70,7 @@ class SignUpViewModel : ViewModel() {
 
     private suspend fun registration(login: String, password: String, name: String) {
         try {
-            val postsResponse = Api.service.registerUser(login, password, name)
+            val postsResponse = apiService.registerUser(login, password, name)
 
             if (!postsResponse.isSuccessful) {
                 throw ApiError(postsResponse.code(), postsResponse.message())
@@ -95,7 +100,7 @@ class SignUpViewModel : ViewModel() {
                 "file", media.file.name, media.file.asRequestBody()
             )
 
-            val postsResponse = Api.service.registerWithPhoto(
+            val postsResponse = apiService.registerWithPhoto(
                 login.toRequestBody("text/plain".toMediaType()),
                 password.toRequestBody("text/plain".toMediaType()),
                 name.toRequestBody("text/plain".toMediaType()),

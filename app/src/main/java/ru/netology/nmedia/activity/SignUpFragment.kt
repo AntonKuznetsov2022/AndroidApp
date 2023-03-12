@@ -15,12 +15,18 @@ import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentSignUpBinding
 import ru.netology.nmedia.viewmodel.SignUpViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     lateinit var binding: FragmentSignUpBinding
     private val viewModel by viewModels<SignUpViewModel>()
@@ -117,7 +123,7 @@ class SignUpFragment : Fragment() {
         }
 
         viewModel.signUpApp.observe(viewLifecycleOwner) {
-            AppAuth.getInstance().setAuth(it.id, it.token)
+            appAuth.setAuth(it.id, it.token)
             findNavController().navigateUp()
             findNavController().navigateUp()
             Snackbar.make(binding.root, R.string.reg_ok, Snackbar.LENGTH_LONG)

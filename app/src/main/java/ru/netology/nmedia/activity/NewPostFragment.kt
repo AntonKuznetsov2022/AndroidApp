@@ -14,6 +14,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.LongArg
 import ru.netology.nmedia.R
@@ -21,7 +23,8 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.StringArg
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 
-
+@AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class NewPostFragment : Fragment() {
 
     lateinit var binding: FragmentNewPostBinding

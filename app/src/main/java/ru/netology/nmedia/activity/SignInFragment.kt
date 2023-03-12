@@ -9,12 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.viewmodel.SignInViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SignInFragment : Fragment() {
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     lateinit var binding: FragmentSignInBinding
     private val viewModel by viewModels<SignInViewModel>()
@@ -50,7 +56,7 @@ class SignInFragment : Fragment() {
         }
 
         viewModel.signInApp.observe(viewLifecycleOwner) {
-            AppAuth.getInstance().setAuth(it.id, it.token)
+            appAuth.setAuth(it.id, it.token)
             findNavController().navigateUp()
             Snackbar.make(binding.root, R.string.login_success, Snackbar.LENGTH_LONG)
                 .show()
