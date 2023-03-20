@@ -12,10 +12,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.HttpException
 import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
@@ -23,11 +22,12 @@ import okio.IOException
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.db.AppDb
-import ru.netology.nmedia.dto.Attachment
-import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.*
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.model.MediaModel
 import javax.inject.Inject
+import kotlin.random.Random
 
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
@@ -39,18 +39,52 @@ class PostRepositoryImpl @Inject constructor(
 /*    override val data = postDao.getAll().map(List<PostEntity>::toDto)
         .flowOn(Dispatchers.Default)*/
 
+    private var today = true
+    private var yesterday = true
+    private var last_week = true
+
     @OptIn(ExperimentalPagingApi::class)
-    override val data: Flow<PagingData<Post>> = Pager(
+    override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
         remoteMediator = PostRemoteMediator(
             apiService = apiService,
             postDao = postDao,
             postRemoteKeyDao = postRemoteKeyDao,
             appDb = appDb,
-            ),
+        ),
         pagingSourceFactory = { postDao.allPostPaging() })
         .flow.map { pagingData ->
             pagingData.map(PostEntity::toDto)
+                .insertSeparators { previous, before ->
+                    if (before?.published?.toLong() != null) {
+                        val diff = System.currentTimeMillis() / 1000 - before.published.toLong()
+                        when (diff) {
+                            in 60 * 60 * 24L downTo 0 -> {
+                                if (today) {
+                                    false.also { today = it }
+                                    return@insertSeparators TimeSeparator(0, Time.TODAY)
+                                }
+                            }
+                            in 60 * 60 * 24L * 2 downTo 60 * 60 * 24L + 1 -> {
+                                if (yesterday) {
+                                    false.also { yesterday = it }
+                                    return@insertSeparators TimeSeparator(1, Time.YESTERDAY)
+                                }
+                            }
+                            else -> {
+                                if (last_week) {
+                                    false.also { last_week = it }
+                                    return@insertSeparators TimeSeparator(2, Time.LAST_WEEK)
+                                }
+                            }
+                        }
+                    }
+                    if (previous?.id?.rem(5) == 0L) {
+                        return@insertSeparators Ad(Random.nextLong(), "figma.jpg")
+                    } else {
+                        return@insertSeparators null
+                    }
+                }
         }
 
     override fun getNewCount(latestId: Long): Flow<Int> = flow {

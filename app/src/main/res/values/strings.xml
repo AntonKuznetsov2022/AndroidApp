@@ -57,4 +57,10 @@
     <string name="login_success">You are logged in</string>
     <string name="login_exit">You are logged out</string>
     <string name="choose">Choose a source for avatar</string>
+    <string name="unknown_item_type">Unknown item type</string>
+    <string name="unknown_view_type">Unknown view type</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="last_week">Last week</string>
+
 </resources>

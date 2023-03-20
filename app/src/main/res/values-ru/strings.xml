@@ -58,4 +58,9 @@
     <string name="login_success">Вы вошли в профиль</string>
     <string name="login_exit">Вы вышли из профиля</string>
     <string name="choose">Выберете источник для добавления аватара</string>
+    <string name="unknown_item_type">Неизвестный тип элемента</string>
+    <string name="unknown_view_type">Неизвестный тип просмотра</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="last_week">На прошлой неделе</string>
 </resources>
