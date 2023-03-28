@@ -55,7 +55,7 @@ class PostRepositoryImpl @Inject constructor(
         pagingSourceFactory = { postDao.allPostPaging() })
         .flow.map { pagingData ->
             pagingData.map(PostEntity::toDto)
-                .insertSeparators { previous, before ->
+                .insertSeparators(TerminalSeparatorType.SOURCE_COMPLETE) { previous, before ->
                     if (before?.published?.toLong() != null) {
                         val diff = System.currentTimeMillis() / 1000 - before.published.toLong()
                         when (diff) {
