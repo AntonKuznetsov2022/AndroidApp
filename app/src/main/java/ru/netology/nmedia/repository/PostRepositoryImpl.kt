@@ -21,6 +21,8 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import okio.IOException
 import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.enumeration.AttachmentType
@@ -30,15 +32,23 @@ import javax.inject.Inject
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
     private val apiService: ApiService,
+    postRemoteKeyDao: PostRemoteKeyDao,
+    appDb: AppDb,
 ) : PostRepository {
+
 /*    override val data = postDao.getAll().map(List<PostEntity>::toDto)
         .flowOn(Dispatchers.Default)*/
 
     @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<Post>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-        remoteMediator = PostRemoteMediator(apiService = apiService, postDao = postDao),
-        pagingSourceFactory = {postDao.allPostPaging()})
+        remoteMediator = PostRemoteMediator(
+            apiService = apiService,
+            postDao = postDao,
+            postRemoteKeyDao = postRemoteKeyDao,
+            appDb = appDb,
+            ),
+        pagingSourceFactory = { postDao.allPostPaging() })
         .flow.map { pagingData ->
             pagingData.map(PostEntity::toDto)
         }
