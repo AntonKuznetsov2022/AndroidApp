@@ -8,16 +8,18 @@ import android.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
+import ru.netology.nmedia.databinding.CardAdBinding
 import ru.netology.nmedia.databinding.CardPostBinding
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
+import android.text.format.DateFormat
+import ru.netology.nmedia.databinding.TimingSeparatorsBinding
+import ru.netology.nmedia.dto.*
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -29,16 +31,67 @@ interface OnInteractionListener {
 
 class PostAdapter(
     private val onInteractionListener: OnInteractionListener,
-) : PagingDataAdapter<Post, PostViewHolder>(PostDiffCallback()) {
+) : PagingDataAdapter<FeedItem, RecyclerView.ViewHolder>(PostDiffCallback()) {
+    override fun getItemViewType(position: Int): Int =
+        when (getItem(position)) {
+            is Ad -> R.layout.card_ad
+            is Post -> R.layout.card_post
+            is TimeSeparator -> R.layout.timing_separators
+            null -> error(R.string.unknown_item_type)
+        }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding = (CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-        return PostViewHolder(binding, onInteractionListener)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+        when (viewType) {
+            R.layout.card_post -> {
+                val binding =
+                    CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                PostViewHolder(binding, onInteractionListener)
+            }
+            R.layout.card_ad -> {
+                val binding =
+                    CardAdBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                AdViewHolder(binding)
+            }
+            R.layout.timing_separators -> {
+                val binding = TimingSeparatorsBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+                TimeSeparatorViewHolder(binding)
+            }
+            else -> error("${R.string.unknown_view_type}: $viewType")
+        }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = getItem(position)) {
+            is Ad -> (holder as? AdViewHolder)?.bind(item)
+            is Post -> (holder as? PostViewHolder)?.bind(item)
+            is TimeSeparator -> (holder as? TimeSeparatorViewHolder)?.bind(item)
+            null -> error(R.string.unknown_item_type)
+        }
     }
+}
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = getItem(position) ?: return
-        holder.bind(post)
+class AdViewHolder(
+    private val binding: CardAdBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+    fun bind(ad: Ad) {
+        binding.imageAd.load("${BuildConfig.BASE_URL}/media/${ad.image}")
+    }
+}
+
+class TimeSeparatorViewHolder(
+    private val binding: TimingSeparatorsBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+    fun bind(timeSeparator: TimeSeparator) {
+        binding.apply {
+            timeSep.text = when (timeSeparator.time) {
+                Time.TODAY -> root.context.getString(R.string.today)
+                Time.YESTERDAY -> root.context.getString(R.string.yesterday)
+                Time.LAST_WEEK -> root.context.getString(R.string.last_week)
+            }
+        }
     }
 }
 
@@ -53,7 +106,9 @@ class PostViewHolder(
             avatar.loadCircleCrop(urlAvatars)
 
             author.text = post.author
-            published.text = post.published
+            val publishedPost =
+                DateFormat.format("dd MMMM yyyy HH:mm:ss", post.published.toLong() * 1_000)
+            published.text = publishedPost.toString()
             content.text = post.content
             share.text = "${countText(post.shares)}"
             views.text = "${countText(post.views)}"
@@ -131,12 +186,15 @@ fun ImageView.load(url: String, vararg transforms: BitmapTransformation = emptyA
 fun ImageView.loadCircleCrop(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
     load(url, CircleCrop(), *transforms)
 
-class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+class PostDiffCallback : DiffUtil.ItemCallback<FeedItem>() {
+    override fun areItemsTheSame(oldItem: FeedItem, newItem: FeedItem): Boolean {
+        if (oldItem::class != newItem::class) {
+            return false
+        }
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+    override fun areContentsTheSame(oldItem: FeedItem, newItem: FeedItem): Boolean {
         return oldItem == newItem
     }
 }
