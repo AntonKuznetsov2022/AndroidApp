@@ -87,9 +87,9 @@ class TimeSeparatorViewHolder(
     fun bind(timeSeparator: TimeSeparator) {
         binding.apply {
             timeSep.text = when (timeSeparator.time) {
-                Time.TODAY -> "Сегодня" //"${R.string.today}" - выводит код строки, а не значение
-                Time.YESTERDAY -> "Вчера"
-                Time.LAST_WEEK -> "На прошлой неделе"
+                Time.TODAY -> root.context.getString(R.string.today)
+                Time.YESTERDAY -> root.context.getString(R.string.yesterday)
+                Time.LAST_WEEK -> root.context.getString(R.string.last_week)
             }
         }
     }
